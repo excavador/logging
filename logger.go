@@ -7,7 +7,7 @@ import (
 
 type Logger struct {
 	// path to logger, i.e. for logger "http.request" it would be ["http", "request"]
-	path name
+	path Name
 	// children loggers
 	children map[string]*Logger
 	// files attached to logger
@@ -21,7 +21,7 @@ var mutex sync.Mutex
 
 func init() {
 	root = &Logger{
-		name{},
+		Name{},
 		make(map[string]*Logger),
 		fileArray{},
 		INFO,
@@ -58,9 +58,9 @@ func (self *Logger) String() string {
 
 func GetLogger(name string) *Logger {
 	current := root
-	parsedName := parseName(name)
-	for _, name := range parsedName.data {
-		current = current.GetLogger(name)
+	parsedName := ParseName(name)
+	for component := range parsedName.Components() {
+		current = current.GetLogger(component)
 	}
 	return current
 }

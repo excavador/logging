@@ -2,7 +2,6 @@ package logging
 
 import (
 	"fmt"
-	//	"sync/atomic"
 )
 
 type Level int
@@ -18,13 +17,15 @@ func (self ErrorLevelInvalidString) Error() string {
 }
 
 const (
-	TRACE Level = iota
-	DEBUG
-	INFO
-	WARN
-	ERROR
-	CRIT
-	MAX
+	MIN     Level = -3
+	TRACE   Level = -2
+	DEBUG   Level = -1
+	INFO    Level = 0
+	WARN    Level = 1
+	ERROR   Level = 2
+	CRIT    Level = 3
+	MAX     Level = 4
+	DEFAULT Level = INFO
 )
 
 var levelString = []string{
@@ -32,24 +33,25 @@ var levelString = []string{
 }
 
 func (self Level) String() string {
-	if self < MAX {
-		return levelString[self]
+	if MIN < self && self < MAX {
+		return levelString[self+2]
 	} else {
-		panic(ErrorLevelInvalidValue(uint8(self)))
+		panic(ErrorLevelInvalidValue(self))
 	}
 }
 
-func LevelParseString(value string) (Level, error) {
+func LevelParse(value string) (Level, error) {
 	for index, str := range levelString {
 		if str == value {
-			return Level(index), nil
+			return Level(int(MIN) + 1 + index), nil
 		}
 	}
 	return MAX, ErrorLevelInvalidString(value)
 }
 
-func (self *Level) Unmarshal(data []byte) error {
-	if result, err := LevelParseString(string(data)); err == nil {
+func (self *Level) UnmarshalJSON(data []byte) error {
+	data = data[1 : len(data)-1]
+	if result, err := LevelParse(string(data)); err == nil {
 		*self = result
 		return nil
 	} else {
@@ -57,12 +59,31 @@ func (self *Level) Unmarshal(data []byte) error {
 	}
 }
 
-func (self *Level) UnmarshalJSON(data []byte) error {
-	return self.Unmarshal(data)
+func (self *Level) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var data string
+	unmarshal(&data)
+	if result, err := LevelParse(string(data)); err == nil {
+		*self = result
+		return nil
+	} else {
+		return err
+	}
 }
 
-func (self *Level) UnmarshalYAML(data []byte) error {
-	return self.Unmarshal(data)
+func (self Level) MarshalJSON() ([]byte, error) {
+	if self < MAX {
+		return []byte(`"` + self.String() + `"`), nil
+	} else {
+		return nil, ErrorLevelInvalidValue(self)
+	}
+}
+
+func (self Level) MarshalYAML() (interface{}, error) {
+	if self < MAX {
+		return self.String(), nil
+	} else {
+		return nil, ErrorLevelInvalidValue(self)
+	}
 }
 
 /*type LevelAtomic atomic.Value
