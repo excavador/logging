@@ -7,13 +7,13 @@ import (
 	"testing"
 )
 
-func CheckConfigInternal_Positive(t *testing.T, public Config) {
-	private := newConfig(public)
+func CheckConfigInternal_Positive(t *testing.T, external Config) {
+	internal := newConfig(external)
 
-	root, has_root := private.Loggers[""]
-	db, has_db := private.Loggers["db"]
-	http, has_http := private.Loggers["http"]
-	http_request, has_http_request := private.Loggers["http.request"]
+	root, has_root := internal.Loggers[""]
+	db, has_db := internal.Loggers["db"]
+	http, has_http := internal.Loggers["http"]
+	http_request, has_http_request := internal.Loggers["http.request"]
 
 	assert.True(t, has_root)
 	assert.True(t, has_db)
@@ -31,13 +31,13 @@ func CheckConfigInternal_Positive(t *testing.T, public Config) {
 			"/var/log/http.log":   true})
 }
 
-func CheckConfig_Positive(t *testing.T, public Config) {
-	assert.Equal(t, "/var/log", public.Directory)
+func CheckConfig_Positive(t *testing.T, external Config) {
+	assert.Equal(t, "/var/log", external.Directory)
 
-	root, has_root := public.Loggers[""]
-	db, has_db := public.Loggers["db"]
-	http_request, has_http_request := public.Loggers["http.request"]
-	_, has_http := public.Loggers["http"]
+	root, has_root := external.Loggers[""]
+	db, has_db := external.Loggers["db"]
+	http_request, has_http_request := external.Loggers["http.request"]
+	_, has_http := external.Loggers["http"]
 
 	assert.True(t, has_root)
 	assert.True(t, has_db)
@@ -50,7 +50,7 @@ func CheckConfig_Positive(t *testing.T, public Config) {
 	assert.Equal(t, db.File, "")
 	assert.Equal(t, http_request.File, "http.log")
 
-	CheckConfigInternal_Positive(t, public)
+	CheckConfigInternal_Positive(t, external)
 }
 
 func Parse(t *testing.T, configType string, configData string) Config {

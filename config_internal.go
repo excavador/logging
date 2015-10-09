@@ -18,6 +18,10 @@ type config struct {
 	Loggers map[string]*loggerConfig
 }
 
+func newEmptyConfig() config {
+	return config{make(map[string]*loggerConfig)}
+}
+
 func newConfig(external Config) config {
 	// verify names
 	for nameString := range external.InvalidNames() {
@@ -25,7 +29,7 @@ func newConfig(external Config) config {
 			nameString, ParseName(nameString).String()))
 	}
 
-	result := config{make(map[string]*loggerConfig)}
+	result := newEmptyConfig()
 
 	// build loggers
 	for nameString, source := range external.Loggers {
