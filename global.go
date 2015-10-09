@@ -22,8 +22,7 @@ func init() {
 
 func GetLogger(name string) *Logger {
 	current := global.Root
-	parsedName := NewName(name)
-	for component := range parsedName.Components() {
+	for component := range NewName(name).Components() {
 		current = current.GetLogger(component)
 	}
 	return current

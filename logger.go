@@ -16,9 +16,6 @@ type Logger struct {
 }
 
 func (self *Logger) Name() Name {
-	global.mutex.Lock()
-	defer global.mutex.Unlock()
-
 	return self.path
 }
 
@@ -33,18 +30,19 @@ func (self *Logger) GetLogger(name string) *Logger {
 	global.mutex.Lock()
 	defer global.mutex.Unlock()
 
-	result, ok := self.children[name]
-	if ok {
+	if result, ok := self.children[name]; ok {
 		return result
 	}
-	logger := &Logger{
-		self.path.GetChild(name),
+
+	result := &Logger{
+		self.Name().GetChild(name),
 		make(map[string]*Logger),
 		self.file,
 		INFO,
 	}
-	self.children[name] = logger
-	return logger
+	self.children[name] = result
+
+	return result
 }
 
 func (self *Logger) String() string {

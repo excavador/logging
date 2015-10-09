@@ -7,7 +7,7 @@ import (
 
 func Test(t *testing.T) {
 	http_request := GetLogger("http.request")
-	assert.Equal(t, http_request.path, NewName("http.request"))
+	assert.Equal(t, NewName("http.request"), http_request.Name())
 	db := GetLogger("db")
-	assert.Equal(t, db.path, NewName("db"))
+	assert.Equal(t, NewName("db"), db.Name())
 }

@@ -23,15 +23,12 @@ func NewName(nameString string) Name {
 	return Name{result}
 }
 
-func (self *Name) GetChild(nameString string) Name {
-	length := len(self.data)
-	result := make([]string, length+1)
-	copy(result, self.data)
-	result[length] = nameString
+func (self Name) GetChild(childrenName string) Name {
+	result := append(self.data, childrenName)
 	return Name{result}
 }
 
-func (self *Name) Components() chan string {
+func (self Name) Components() chan string {
 	result := make(chan string)
 	go func() {
 		for _, component := range self.data {
@@ -42,7 +39,7 @@ func (self *Name) Components() chan string {
 	return result
 }
 
-func (self *Name) Parents() chan Name {
+func (self Name) Parents() chan Name {
 	result := make(chan Name)
 	go func() {
 		for index, _ := range self.data {
