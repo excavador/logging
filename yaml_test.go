@@ -1,14 +1,11 @@
 package logging
 
 import (
-	"gopkg.in/yaml.v2"
 	"testing"
 )
 
 func TestValidYAML(t *testing.T) {
-	public := NewConfig()
-	err := yaml.Unmarshal([]byte(validYAML), &public)
-	CheckValidConfig(t, err, public)
+	ParseAndCheckValidConfig(t, "yaml", validYAML)
 }
 
 var validYAML = `

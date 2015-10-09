@@ -2,6 +2,7 @@ package logging
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Level int
@@ -9,11 +10,11 @@ type ErrorLevelInvalidValue int
 type ErrorLevelInvalidString string
 
 func (self ErrorLevelInvalidValue) Error() string {
-	return fmt.Sprintf("Invalid Level value: %v", self)
+	return fmt.Sprintf("Invalid Level value: %v", int(self))
 }
 
 func (self ErrorLevelInvalidString) Error() string {
-	return fmt.Sprintf("Invalid Level string: %v", self)
+	return fmt.Sprintf("Invalid Level string '%v'", string(self))
 }
 
 const (
@@ -40,13 +41,19 @@ func (self Level) String() string {
 	}
 }
 
-func LevelParse(value string) (Level, error) {
+func (self *Level) Parse(value string) error {
+	if value == "" {
+		*self = DEFAULT
+		return nil
+	}
+	value = strings.ToUpper(value)
 	for index, str := range levelString {
 		if str == value {
-			return Level(int(MIN) + 1 + index), nil
+			*self = Level(int(MIN) + 1 + index)
+			return nil
 		}
 	}
-	return MAX, ErrorLevelInvalidString(value)
+	return ErrorLevelInvalidString(value)
 }
 
 /*type LevelAtomic atomic.Value

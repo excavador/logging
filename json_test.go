@@ -1,14 +1,11 @@
 package logging
 
 import (
-	"encoding/json"
 	"testing"
 )
 
 func TestValidJSON(t *testing.T) {
-	public := NewConfig()
-	err := json.Unmarshal([]byte(validJSON), &public)
-	CheckValidConfig(t, err, public)
+	ParseAndCheckValidConfig(t, "json", validJSON)
 }
 
 var validJSON = `

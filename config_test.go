@@ -1,22 +1,15 @@
 package logging
 
 import (
-	"encoding/json"
-	"fmt"
+	"bytes"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 	"testing"
 )
 
-func (self Config) Print() {
-	result, err := json.Marshal(self)
-	fmt.Printf("error: %v data:\n%v\n", err, string(result))
-	result, err = yaml.Marshal(self)
-	fmt.Printf("error: %v data:\n%v\n", err, string(result))
-}
-
 func CheckInternalValid(t *testing.T, public Config) {
-	private := public.internal()
+	private := newConfig(public)
+
 	root, has_root := private.Loggers[""]
 	db, has_db := private.Loggers["db"]
 	http, has_http := private.Loggers["http"]
@@ -38,11 +31,8 @@ func CheckInternalValid(t *testing.T, public Config) {
 			"/var/log/http.log":   true})
 }
 
-func CheckValidConfig(t *testing.T, err error, public Config) {
-	assert.NoError(t, err)
+func CheckValidConfig(t *testing.T, public Config) {
 	assert.Equal(t, "/var/log", public.Directory)
-
-	public.Print()
 
 	root, has_root := public.Loggers[""]
 	db, has_db := public.Loggers["db"]
@@ -53,12 +43,28 @@ func CheckValidConfig(t *testing.T, err error, public Config) {
 	assert.True(t, has_db)
 	assert.True(t, has_http_request)
 	assert.False(t, has_http)
-	assert.Equal(t, INFO, root.Level)
-	assert.Equal(t, INFO, db.Level)
-	assert.Equal(t, ERROR, http_request.Level)
+	assert.Equal(t, "INFO", root.Level)
+	assert.Equal(t, "", db.Level)
+	assert.Equal(t, "ERROR", http_request.Level)
 	assert.Equal(t, root.File, "sample.log")
 	assert.Equal(t, db.File, "")
 	assert.Equal(t, http_request.File, "http.log")
 
 	CheckInternalValid(t, public)
+}
+
+func ParseAndCheckValidConfig(t *testing.T, configType string, configData string) {
+	data := bytes.NewBuffer([]byte(configData))
+
+	v := viper.New()
+	v.SetConfigType(configType)
+
+	err := v.ReadConfig(data)
+	assert.NoError(t, err)
+
+	public := NewConfig()
+	err = v.Unmarshal(&public)
+	assert.NoError(t, err)
+
+	CheckValidConfig(t, public)
 }
