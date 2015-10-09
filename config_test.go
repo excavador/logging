@@ -32,10 +32,14 @@ func CheckInternalValid(t *testing.T, public Config) {
 	assert.EqualValues(t, root.Pathes, map[string]bool{"/var/log/sample.log": true})
 	assert.EqualValues(t, db.Pathes, map[string]bool{"/var/log/sample.log": true})
 	assert.EqualValues(t, http.Pathes, map[string]bool{"/var/log/sample.log": true})
-	assert.EqualValues(t, http_request.Pathes, map[string]bool{"/var/log/sample.log": true, "/var/log/http.log": true})
+	assert.EqualValues(t, http_request.Pathes,
+		map[string]bool{
+			"/var/log/sample.log": true,
+			"/var/log/http.log":   true})
 }
 
-func CheckValidConfig(t *testing.T, public Config) {
+func CheckValidConfig(t *testing.T, err error, public Config) {
+	assert.NoError(t, err)
 	assert.Equal(t, "/var/log", public.Directory)
 
 	public.Print()
@@ -58,61 +62,3 @@ func CheckValidConfig(t *testing.T, public Config) {
 
 	CheckInternalValid(t, public)
 }
-
-func TestValidJSON(t *testing.T) {
-	var public Config
-	json.Unmarshal([]byte(validJSON), &public)
-	CheckValidConfig(t, public)
-}
-
-func TestValidYAML(t *testing.T) {
-	var public Config
-	yaml.Unmarshal([]byte(validYAML), &public)
-	CheckValidConfig(t, public)
-}
-
-var validJSON = `
-{
-	"directory": "/var/log",
-	"loggers": {
-		"": {
-			"file": "sample.log",
-			"level": "INFO"
-		},
-		"db": {
-		},
-		"http.request": {
-			"file": "http.log",
-			"level": "ERROR"
-		}
-	}
-}`
-
-var validYAML = `
-directory: /var/log
-loggers:
-  "":
-    file: sample.log
-    level: INFO
-  db:
-  http.request:
-    file: http.log
-    level: ERROR
-`
-
-var invalidJSON = `
-{
-	"directory": "/var/log",
-	"loggers": {
-		"": {
-			"file": "sample.log"
-		},
-		".db": {
-			"file": "db.log"
-		},
-		"http..request": {
-			"file": "http.log",
-			"level": "DEBUG"
-		}
-	}
-}`

@@ -33,13 +33,8 @@ type config struct {
 	Loggers map[string]*loggerConfig
 }
 
-func (self LoggerConfig) MarshalYAML() (interface{}, error) {
-	result := make(map[string]string)
-	if len(self.File) > 0 {
-		result["file"] = self.File
-	}
-	result["level"] = self.Level.String()
-	return result, nil
+func NewConfig() Config {
+	return Config{"", make(map[string]LoggerConfig)}
 }
 
 func newConfig() config {

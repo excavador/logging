@@ -49,43 +49,6 @@ func LevelParse(value string) (Level, error) {
 	return MAX, ErrorLevelInvalidString(value)
 }
 
-func (self *Level) UnmarshalJSON(data []byte) error {
-	data = data[1 : len(data)-1]
-	if result, err := LevelParse(string(data)); err == nil {
-		*self = result
-		return nil
-	} else {
-		return err
-	}
-}
-
-func (self *Level) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var data string
-	unmarshal(&data)
-	if result, err := LevelParse(string(data)); err == nil {
-		*self = result
-		return nil
-	} else {
-		return err
-	}
-}
-
-func (self Level) MarshalJSON() ([]byte, error) {
-	if self < MAX {
-		return []byte(`"` + self.String() + `"`), nil
-	} else {
-		return nil, ErrorLevelInvalidValue(self)
-	}
-}
-
-func (self Level) MarshalYAML() (interface{}, error) {
-	if self < MAX {
-		return self.String(), nil
-	} else {
-		return nil, ErrorLevelInvalidValue(self)
-	}
-}
-
 /*type LevelAtomic atomic.Value
 
 func (self *LevelAtomic) Get() Level {
