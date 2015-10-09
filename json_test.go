@@ -4,8 +4,12 @@ import (
 	"testing"
 )
 
-func TestValidJSON(t *testing.T) {
-	ParseAndCheckValidConfig(t, "json", validJSON)
+func TestJSON_Positive(t *testing.T) {
+	ParseCheckConfig_Positive(t, "json", validJSON)
+}
+
+func TestJSON_Negative(t *testing.T) {
+	ParseCheckConfig_Negative(t, "json", invalidJSON)
 }
 
 var validJSON = `
@@ -30,14 +34,14 @@ var invalidJSON = `
 	"directory": "/var/log",
 	"loggers": {
 		"": {
-			"file": "sample.log"
+			"file": "sample.log",
+			"level": "INFO"
 		},
 		".db": {
-			"file": "db.log"
 		},
 		"http..request": {
 			"file": "http.log",
-			"level": "DEBUG"
+			"level": "ERROR"
 		}
 	}
 }`

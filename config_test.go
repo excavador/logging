@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func CheckInternalValid(t *testing.T, public Config) {
+func CheckConfigInternal_Positive(t *testing.T, public Config) {
 	private := newConfig(public)
 
 	root, has_root := private.Loggers[""]
@@ -31,7 +31,7 @@ func CheckInternalValid(t *testing.T, public Config) {
 			"/var/log/http.log":   true})
 }
 
-func CheckValidConfig(t *testing.T, public Config) {
+func CheckConfig_Positive(t *testing.T, public Config) {
 	assert.Equal(t, "/var/log", public.Directory)
 
 	root, has_root := public.Loggers[""]
@@ -50,10 +50,10 @@ func CheckValidConfig(t *testing.T, public Config) {
 	assert.Equal(t, db.File, "")
 	assert.Equal(t, http_request.File, "http.log")
 
-	CheckInternalValid(t, public)
+	CheckConfigInternal_Positive(t, public)
 }
 
-func ParseAndCheckValidConfig(t *testing.T, configType string, configData string) {
+func Parse(t *testing.T, configType string, configData string) Config {
 	data := bytes.NewBuffer([]byte(configData))
 
 	v := viper.New()
@@ -62,9 +62,23 @@ func ParseAndCheckValidConfig(t *testing.T, configType string, configData string
 	err := v.ReadConfig(data)
 	assert.NoError(t, err)
 
-	public := NewConfig()
-	err = v.Unmarshal(&public)
+	result := NewConfig()
+	err = v.Unmarshal(&result)
 	assert.NoError(t, err)
 
-	CheckValidConfig(t, public)
+	return result
+}
+
+func ParseCheckConfig_Positive(t *testing.T, configType string, configData string) {
+	config := Parse(t, configType, configData)
+	CheckConfig_Positive(t, config)
+}
+
+func ParseCheckConfig_Negative(t *testing.T, configType string, configData string) {
+	config := Parse(t, configType, configData)
+	actual := make(map[string]bool)
+	for name := range config.InvalidNames() {
+		actual[name] = true
+	}
+	assert.EqualValues(t, map[string]bool{".db": true, "http..request": true}, actual)
 }
