@@ -13,7 +13,7 @@ func (self Name) String() string {
 	return strings.Join(self.data, ".")
 }
 
-func ParseName(nameString string) Name {
+func NewName(nameString string) Name {
 	result := make([]string, 0)
 	for _, path := range strings.Split(nameString, ".") {
 		if len(path) > 0 {

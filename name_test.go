@@ -12,6 +12,6 @@ func TestPath(t *testing.T) {
 	assert.Equal(t, p.String(), "http")
 	p = p.GetChild("request")
 	assert.Equal(t, p.String(), "http.request")
-	q := ParseName("http.request")
+	q := NewName("http.request")
 	assert.Equal(t, p, q)
 }

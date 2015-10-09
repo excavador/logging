@@ -26,7 +26,7 @@ func newConfig(external Config) config {
 	// verify names
 	for nameString := range external.InvalidNames() {
 		panic(fmt.Sprintf("logger hierarchical name %s normalized to %s, improper configuration",
-			nameString, ParseName(nameString).String()))
+			nameString, NewName(nameString).String()))
 	}
 
 	result := newEmptyConfig()
@@ -57,7 +57,7 @@ func (self *config) GetLogger(nameString string) *loggerConfig {
 	if result, found := self.Loggers[nameString]; found {
 		return result
 	}
-	name := ParseName(nameString)
+	name := NewName(nameString)
 	for parentName := range name.Parents() {
 		parentNameString := parentName.String()
 		if _, found := self.Loggers[parentNameString]; !found {

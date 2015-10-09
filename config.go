@@ -23,7 +23,7 @@ func (self *Config) InvalidNames() chan string {
 	result := make(chan string)
 	go func() {
 		for nameString, _ := range self.Loggers {
-			name := ParseName(nameString)
+			name := NewName(nameString)
 			if name.String() != nameString {
 				result <- nameString
 			}
